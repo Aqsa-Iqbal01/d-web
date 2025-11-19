@@ -1,0 +1,8 @@
+venv/
+instance/
+__pycache__/
+*.pyc
+.result.txt
+firebase-debug.log
+sign.txt
+test.txt

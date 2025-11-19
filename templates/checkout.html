@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<section class="checkout">
+    <h2>Checkout</h2>
+    <p>Please enter your payment details below to complete your purchase.</p>
+    <div class="payment-form">
+        <form action="{{ url_for('process_payment') }}" method="post">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="card_number">Card Number</label>
+            <input type="text" id="card_number" name="card_number" required>
+
+            <label for="expiry_date">Expiry Date (MM/YY)</label>
+            <input type="text" id="expiry_date" name="expiry_date" required>
+
+            <label for="cvc">CVC</label>
+            <input type="text" id="cvc" name="cvc" required>
+
+            <button type="submit" class="btn">Pay Now</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

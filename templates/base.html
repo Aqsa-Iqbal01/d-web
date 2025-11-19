@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Diamond Jewelry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('home') }}" class="logo">Diamond Jewelry</a>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                <li><a href="{{ url_for('cart') }}">Cart</a></li>
+                {% if current_user.is_authenticated %}
+                    <li class="profile-dropdown">
+                        <div class="profile-icon" onclick="toggleDropdown()">
+                            {{ current_user.username[0].upper() }}
+                        </div>
+                        <div class="dropdown-content" id="dropdownContent">
+                            <p>{{ current_user.username }}</p>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Diamond Jewelry. All rights reserved.</p>
+    </footer>
+    <script>
+        function toggleDropdown() {
+            document.getElementById("dropdownContent").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile-icon')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
