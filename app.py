@@ -1,33 +1,11 @@
+import os
 import resend
-from flask import Flask, render_template, session, redirect, url_for, request, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-from flask_bcrypt import Bcrypt
+from flask import Flask, render_template, session, redirect, url_for, request
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-login_manager.login_message_category = 'info'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-
-with app.app_context():
-    db.create_all()
-
-resend.api_key = "re_YGDPs2cA_KRxZ6e8dFs8qaFWDFtLHkbsz"
+resend.api_key = os.environ.get('RESEND_API_KEY')
 
 products = {
     '1': {'name': 'Solitaire Diamond Ring', 'price': 2500, 'image': 'images/img1.avif'},
@@ -75,7 +53,6 @@ def contact_thank_you():
     return render_template('contact_thank_you.html')
 
 @app.route('/add_to_cart/<product_id>')
-@login_required
 def add_to_cart(product_id):
     if 'cart' not in session:
         session['cart'] = {}
@@ -138,50 +115,6 @@ def process_payment():
 @app.route('/thank_you')
 def thank_you():
     return render_template('thank_you.html')
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    if request.method == 'POST':
-        username = request.form['username']
-        user = User.query.filter_by(username=username).first()
-        if user:
-            flash('That username is already taken. Please choose a different one.', 'danger')
-            return redirect(url_for('signup'))
-        hashed_password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
-        user = User(username=username, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
-        return redirect(url_for('login'))
-    return render_template('signup.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        print(f"Attempting to log in with username: {username}")
-        user = User.query.filter_by(username=username).first()
-        print(f"User found in database: {user}")
-        if user:
-            password_match = bcrypt.check_password_hash(user.password, password)
-            print(f"Password match result: {password_match}")
-            if password_match:
-                login_user(user, remember=True)
-                next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for('home'))
-    
-        flash('Login Unsuccessful. Please check username and password', 'danger')
-    return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)

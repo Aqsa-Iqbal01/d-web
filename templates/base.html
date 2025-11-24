@@ -16,20 +16,7 @@
                 <li><a href="{{ url_for('about') }}">About</a></li>
                 <li><a href="{{ url_for('contact') }}">Contact</a></li>
                 <li><a href="{{ url_for('cart') }}">Cart</a></li>
-                {% if current_user.is_authenticated %}
-                    <li class="profile-dropdown">
-                        <div class="profile-icon" onclick="toggleDropdown()">
-                            {{ current_user.username[0].upper() }}
-                        </div>
-                        <div class="dropdown-content" id="dropdownContent">
-                            <p>{{ current_user.username }}</p>
-                            <a href="{{ url_for('logout') }}">Logout</a>
-                        </div>
-                    </li>
-                {% else %}
-                    <li><a href="{{ url_for('login') }}">Login</a></li>
-                    <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
-                {% endif %}
+                
             </ul>
         </nav>
     </header>
