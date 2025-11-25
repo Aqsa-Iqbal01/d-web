@@ -6,3 +6,4 @@ __pycache__/
 firebase-debug.log
 sign.txt
 test.txt
+.env
