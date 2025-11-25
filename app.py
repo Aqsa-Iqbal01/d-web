@@ -1,9 +1,14 @@
+from dotenv import load_dotenv
 import os
 import resend
 from flask import Flask, render_template, session, redirect, url_for, request
 
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
+
+load_dotenv()
 
 resend.api_key = os.environ.get('RESEND_API_KEY')
 
@@ -36,14 +41,19 @@ def contact():
         message = request.form['message']
 
         params = {
-            "from": "onboarding@resend.dev",
+            "from": "daimond website owner <onboarding@resend.dev>",
             "to": "iqbalaqsa955@gmail.com",
             "subject": "New Contact Form Submission",
             "html": f"<strong>Name:</strong> {name}<br><strong>Email:</strong> {email}<br><strong>Message:</strong> {message}",
         }
 
-        email = resend.Emails.send(params)
-        print(email)
+        try:
+            email = resend.Emails.send(params)
+            print(email)
+        except resend.exceptions.ResendError as e:
+            print("Failed to send email. Please check your Resend API key and that the 'from' email address is a verified domain in your Resend account.")
+            print(f"Error: {e}")
+            raise
 
         return redirect(url_for('contact_thank_you'))
     return render_template('contact.html')
@@ -107,6 +117,44 @@ def checkout():
 
 @app.route('/process_payment', methods=['POST'])
 def process_payment():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+
+        cart_products = {}
+        total_price = 0
+        if 'cart' in session:
+            for product_id, quantity in session['cart'].items():
+                product = products.get(product_id)
+                if product:
+                    cart_products[product_id] = {
+                        'name': product['name'],
+                        'price': product['price'],
+                        'quantity': quantity,
+                        'image': product['image']
+                    }
+                    total_price += product['price'] * quantity
+        
+        html_body = f"<h1>New Order</h1><p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><h2>Order Details</h2><ul>"
+        for _, item in cart_products.items():
+            html_body += f"<li>{item['name']} (x{item['quantity']}) - ${item['price'] * item['quantity']:.2f}</li>"
+        html_body += f"</ul><p><strong>Total:</strong> ${total_price:.2f}</p>"
+
+        params = {
+            "from": "daimond website owner <onboarding@resend.dev>",
+            "to": "iqbalaqsa955@gmail.com",
+            "subject": "New Order Received",
+            "html": html_body,
+        }
+
+        try:
+            email_sent = resend.Emails.send(params)
+            print(email_sent)
+        except resend.exceptions.ResendError as e:
+            print("Failed to send order confirmation email.")
+            print(f"Error: {e}")
+            # Do not raise the exception here to not block the user from seeing the thank you page.
+            
     # In a real application, you would process the payment here.
     # For this demo, we'll just clear the cart.
     session.pop('cart', None)
