@@ -1,9 +1,7 @@
 from dotenv import load_dotenv
 import os
 import resend
-from flask import Flask, render_template, session, redirect, url_for, request
-
-
+from flask import Flask, render_template, session, redirect, url_for, request, jsonify
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -24,6 +22,10 @@ products = {
     '9': {'name': 'Vintage Style Ring', 'price': 2800, 'image': 'images/img3.jpg'},
     '10': {'name': 'Choker Necklace', 'price': 4800, 'image': 'images/bn3.jpg'},
 }
+
+@app.context_processor
+def inject_cart_count():
+    return dict(cart_count=len(session.get('cart', {})))
 
 @app.route('/')
 def home():
@@ -72,6 +74,20 @@ def add_to_cart(product_id):
     session.modified = True
     return redirect(url_for('cart'))
 
+@app.route('/add_to_cart_ajax/<product_id>')
+def add_to_cart_ajax(product_id):
+    if 'cart' not in session:
+        session['cart'] = {}
+    
+    cart = session['cart']
+    cart[product_id] = cart.get(product_id, 0) + 1
+    session.modified = True
+    return jsonify(success=True, message="Item added to cart successfully", cart_count=len(cart))
+
+@app.route('/cart/count')
+def cart_count():
+    return jsonify(cart_count=len(session.get('cart', {})))
+
 @app.route('/cart')
 def cart():
     cart_products = {}
@@ -96,6 +112,15 @@ def remove_from_cart(product_id):
         session.modified = True
     return redirect(url_for('cart'))
 
+@app.route('/remove_from_cart_ajax/<product_id>')
+def remove_from_cart_ajax(product_id):
+    if 'cart' in session and product_id in session['cart']:
+        del session['cart'][product_id]
+        session.modified = True
+        total_price = sum(products[pid]['price'] * qty for pid, qty in session['cart'].items())
+        return jsonify(success=True, total_price=total_price, cart_count=len(session['cart']))
+    return jsonify(success=False, message="Item not in cart")
+
 @app.route('/update_cart/<product_id>', methods=['POST'])
 def update_cart(product_id):
     if 'cart' in session and product_id in session['cart']:
@@ -110,6 +135,38 @@ def update_cart(product_id):
                 del cart[product_id]
         session.modified = True
     return redirect(url_for('cart'))
+
+@app.route('/update_cart_ajax/<product_id>', methods=['POST'])
+def update_cart_ajax(product_id):
+    if 'cart' in session and product_id in session['cart']:
+        cart = session['cart']
+        action = request.json.get('action')
+        if action == 'increase':
+            cart[product_id] += 1
+        elif action == 'decrease':
+            if cart[product_id] > 1:
+                cart[product_id] -= 1
+            else:
+                del cart[product_id]
+        session.modified = True
+
+        if product_id in cart:
+            item_total = products[product_id]['price'] * cart[product_id]
+            quantity = cart[product_id]
+        else:
+            item_total = 0
+            quantity = 0
+
+        total_price = sum(products[pid]['price'] * qty for pid, qty in cart.items())
+
+        return jsonify(
+            success=True,
+            quantity=quantity,
+            item_total=item_total,
+            total_price=total_price,
+            cart_count=len(cart)
+        )
+    return jsonify(success=False, message="Item not in cart")
 
 @app.route('/checkout')
 def checkout():

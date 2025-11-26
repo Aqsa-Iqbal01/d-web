@@ -3,44 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %} - Diamond Jewelry</title>
+    <title>{% block title %}{% endblock %} - Exquisite</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
         <nav>
-            <a href="{{ url_for('home') }}" class="logo">Diamond Jewelry</a>
+            <a href="{{ url_for('home') }}" class="logo">Exquisite</a>
             <ul>
                 <li><a href="{{ url_for('home') }}">Home</a></li>
                 <li><a href="{{ url_for('about') }}">About</a></li>
                 <li><a href="{{ url_for('contact') }}">Contact</a></li>
-                <li><a href="{{ url_for('cart') }}">Cart</a></li>
-                
+                <li><a href="{{ url_for('cart') }}">Cart (<span id="cart-count">{{ cart_count }}</span>)</a></li>
             </ul>
         </nav>
     </header>
     <main>
+        <div id="success-message" style="display: none; color: green; text-align: center; padding: 10px; background-color: #e6ffec;">
+            Item added to cart successfully
+        </div>
         {% block content %}{% endblock %}
     </main>
     <footer>
-        <p>&copy; 2025 Diamond Jewelry. All rights reserved.</p>
+        <p>&copy; 2025 Exquisite. All rights reserved.</p>
     </footer>
     <script>
-        function toggleDropdown() {
-            document.getElementById("dropdownContent").classList.toggle("show");
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.profile-icon')) {
-                var dropdowns = document.getElementsByClassName("dropdown-content");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
+        function addToCart(productId) {
+            fetch(`/add_to_cart_ajax/${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('cart-count').innerText = data.cart_count;
+                        const successMessage = document.getElementById('success-message');
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 3000);
                     }
-                }
-            }
+                });
         }
     </script>
 </body>

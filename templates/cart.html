@@ -18,7 +18,7 @@
             </thead>
             <tbody>
                 {% for product_id, product in cart_products.items() %}
-                <tr>
+                <tr id="row-{{ product_id }}">
                     <td>
                         <div class="product-info">
                             <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
@@ -27,28 +27,63 @@
                     </td>
                     <td>${{ product.price }}</td>
                     <td>
-                        <form action="{{ url_for('update_cart', product_id=product_id) }}" method="post">
-                            <div class="quantity-form">
-                                <button type="submit" name="action" value="decrease" class="quantity-btn">&lt;</button>
-                                <input type="text" name="quantity" value="{{ product.quantity }}" readonly class="quantity-input">
-                                <button type="submit" name="action" value="increase" class="quantity-btn">&gt;</button>
-                            </div>
-                        </form>
+                        <div class="quantity-form">
+                            <button onclick="updateCart('{{ product_id }}', 'decrease')" class="quantity-btn">&lt;</button>
+                            <span id="quantity-{{ product_id }}">{{ product.quantity }}</span>
+                            <button onclick="updateCart('{{ product_id }}', 'increase')" class="quantity-btn">&gt;</button>
+                        </div>
                     </td>
-                    <td>${{ product.price * product.quantity }}</td>
+                    <td id="item-total-{{ product_id }}">${{ product.price * product.quantity }}</td>
                     <td>
-                        <a href="{{ url_for('remove_from_cart', product_id=product_id) }}" class="btn-remove">Remove</a>
+                        <a href="javascript:void(0);" onclick="removeFromCart('{{ product_id }}')" class="btn-remove">Remove</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         <div class="cart-total">
-            <h3>Total: ${{ total_price }}</h3>
+            <h3>Total: <span id="total-price">${{ total_price }}</span></h3>
             <a href="{{ url_for('checkout') }}" class="btn">Checkout</a>
         </div>
     {% else %}
         <p>Your cart is empty.</p>
     {% endif %}
 </section>
+
+<script>
+function updateCart(productId, action) {
+    fetch(`/update_cart_ajax/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: action }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.quantity === 0) {
+                document.getElementById(`row-${productId}`).remove();
+            } else {
+                document.getElementById(`quantity-${productId}`).innerText = data.quantity;
+                document.getElementById(`item-total-${productId}`).innerText = '$' + data.item_total;
+            }
+            document.getElementById('total-price').innerText = '$' + data.total_price;
+            document.getElementById('cart-count').innerText = data.cart_count;
+        }
+    });
+}
+
+function removeFromCart(productId) {
+    fetch(`/remove_from_cart_ajax/${productId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`row-${productId}`).remove();
+            document.getElementById('total-price').innerText = '$' + data.total_price;
+            document.getElementById('cart-count').innerText = data.cart_count;
+        }
+    });
+}
+</script>
 {% endblock %}

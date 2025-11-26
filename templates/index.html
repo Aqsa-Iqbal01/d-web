@@ -5,7 +5,7 @@
 {% block content %}
 <section class="hero">
     <div class="hero-content">
-        <h1>Exquisite Diamond Jewelry</h1>
+        <h1>Exquisite Diamond Jewellery</h1>
         <p>Discover our stunning collection of handcrafted diamond pieces.</p>
         <a href="#" class="btn">Shop Now</a>
     </div>
@@ -19,7 +19,7 @@
             <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
             <h3>{{ product.name }}</h3>
             <p>${{ product.price }}</p>
-            <a href="{{ url_for('add_to_cart', product_id=product_id) }}" class="btn">Add to Cart</a>
+            <a href="javascript:void(0);" onclick="addToCart('{{ product_id }}')" class="btn">Add to Cart</a>
         </div>
         {% endfor %}
     </div>
