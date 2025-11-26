@@ -77,6 +77,24 @@ nav ul li a {
     font-weight: bold;
 }
 
+.hamburger {
+    display: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.hamburger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    margin: 5px 0;
+    transition: 0.4s;
+}
+
+
 /* Main Content */
 main {
     padding: 40px;
@@ -442,4 +460,177 @@ footer:hover {
 .contact-us form textarea,
 .contact-us form button {
     animation: fadeIn 1s ease-in;
+}
+
+/* Media Queries for Responsive Design */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    header {
+        padding: 20px;
+    }
+
+    nav ul li {
+        margin-left: 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 48px;
+    }
+
+    .hero-content p {
+        font-size: 20px;
+    }
+
+    .featured-products h2,
+    .about-us h2,
+    .contact-us h2,
+    .checkout h2,
+    .thank-you h2 {
+        font-size: 32px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .login-box {
+        width: 90%;
+        padding: 30px;
+    }
+}
+
+/* Phablets */
+@media (max-width: 768px) {
+    body {
+        padding-top: auto;
+    }
+
+    header {
+        padding: 15px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+    }
+
+    nav {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .hamburger {
+        display: block;
+    }
+
+    nav ul {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: #fff;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        padding: 0;
+        margin: 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    nav ul.show {
+        display: flex;
+    }
+
+    nav ul li {
+        margin: 0;
+        text-align: center;
+        width: 100%;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .hero {
+        padding: 80px 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 36px;
+    }
+
+    .hero-content p {
+        font-size: 18px;
+    }
+
+    .featured-products {
+        padding: 40px 20px;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .about-us, .contact-us, .checkout, .thank-you {
+        padding: 40px 20px;
+    }
+
+    .cart-table th, .cart-table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .product-info img {
+        max-width: 60px;
+        margin-right: 15px;
+    }
+
+    .cart-total {
+        text-align: center;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+/* Mobile Phones */
+@media (max-width: 480px) {
+    body {
+        padding-top: 60px;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 28px;
+    }
+
+    .hero-content p {
+        font-size: 16px;
+    }
+
+    .featured-products h2,
+    .about-us h2,
+    .contact-us h2,
+    .checkout h2,
+    .thank-you h2 {
+        font-size: 28px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .login-box {
+        padding: 20px;
+    }
+
+    .login-box h2 {
+        font-size: 24px;
+    }
 }

@@ -11,7 +11,12 @@
     <header>
         <nav>
             <a href="{{ url_for('home') }}" class="logo">Exquisite</a>
-            <ul>
+            <button class="hamburger" id="hamburger-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul id="nav-links">
                 <li><a href="{{ url_for('home') }}">Home</a></li>
                 <li><a href="{{ url_for('about') }}">About</a></li>
                 <li><a href="{{ url_for('contact') }}">Contact</a></li>
@@ -29,6 +34,10 @@
         <p>&copy; 2025 Exquisite. All rights reserved.</p>
     </footer>
     <script>
+        document.getElementById('hamburger-menu').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('show');
+        });
+
         function addToCart(productId) {
             fetch(`/add_to_cart_ajax/${productId}`)
                 .then(response => response.json())
